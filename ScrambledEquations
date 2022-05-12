@@ -1,0 +1,85 @@
+import java.util.*;
+
+public class ScrambledEquations {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int times = Integer.parseInt(sc.nextLine());
+        Set<String> operatorCheck = new HashSet<>();
+        operatorCheck.add("*");
+        operatorCheck.add("+");
+        operatorCheck.add("-");
+        operatorCheck.add("/");
+        for (int i = 0; i < times; i++) {
+            String[] ansAndParts = sc.nextLine().split(":");
+            int answer = Integer.parseInt(ansAndParts[0]);
+            String[] stringParts = ansAndParts[1].split(" ");
+            ArrayList<Integer> numbers = new ArrayList<>();
+            ArrayList<String> operators = new ArrayList<>();
+            for (String s :
+                    stringParts) {
+                if (operatorCheck.contains(s))
+                    operators.add(s);
+                else
+                    numbers.add(Integer.parseInt(s));
+            }
+            Wrapper works = new Wrapper(false);
+            permuteNumbers(numbers, operators, 0, works, answer);
+            if(works.isWorks())
+                System.out.println("TRUE");
+            else
+                System.out.println("FALSE");
+        }
+    }
+    public static int solve(ArrayList<Integer> numbers, ArrayList<String> operators){
+        int answer = numbers.get(0);
+        for (int i = 0; i < operators.size(); i++) {
+            String op = operators.get(i);
+            if(op.equals("+"))
+                answer += numbers.get(i+1);
+            if(op.equals("-"))
+                answer -= numbers.get(i+1);
+            if(op.equals("*"))
+                answer *= numbers.get(i+1);
+            if(op.equals("/"))
+                answer /= numbers.get(i+1);
+        }
+        return answer;
+    }
+    public static void permuteNumbers(ArrayList<Integer> numbers, ArrayList<String> operators, int element, Wrapper works, int answer){
+        for (int i = element; i < numbers.size(); i++) {
+            Collections.swap(numbers, i, element);
+            permuteNumbers(numbers, operators, element + 1, works, answer);
+            Collections.swap(numbers, element, i);
+        }
+        if(element == numbers.size() -1) {
+            permuteOperators(numbers, operators, 0, works, answer);
+        }
+    }
+    public static void permuteOperators(ArrayList<Integer> numbers, ArrayList<String> operators, int element, Wrapper works, int answer){
+        for (int i = element; i < operators.size(); i++) {
+            Collections.swap(operators, i, element);
+            permuteOperators(numbers, operators, element + 1, works, answer);
+            Collections.swap(operators, element, i);
+        }
+        if(element == operators.size() - 1){
+            if(solve(numbers, operators) == answer) {
+                works.setWorks(true);
+            }
+        }
+    }
+
+}
+class Wrapper{
+    private boolean works;
+    public Wrapper(boolean works){
+        this.works = works;
+    }
+
+    public boolean isWorks() {
+        return works;
+    }
+
+    public void setWorks(boolean works) {
+        this.works = works;
+    }
+}
